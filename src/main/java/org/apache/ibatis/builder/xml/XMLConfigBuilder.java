@@ -1,18 +1,3 @@
-/**
- *    Copyright 2009-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.apache.ibatis.builder.xml;
 
 import java.io.InputStream;
@@ -48,8 +33,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * @author Clinton Begin
- * @author Kazuki Shimizu
+ * 解析Mybatis的xml的配置文件，将解析后内容保存到 Configuration中
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
@@ -58,30 +42,27 @@ public class XMLConfigBuilder extends BaseBuilder {
   private String environment;
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
+  /**
+   * ================================ 构造器 ========================================
+   */
   public XMLConfigBuilder(Reader reader) {
     this(reader, null, null);
   }
-
   public XMLConfigBuilder(Reader reader, String environment) {
     this(reader, environment, null);
   }
-
   public XMLConfigBuilder(Reader reader, String environment, Properties props) {
     this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
   }
-
   public XMLConfigBuilder(InputStream inputStream) {
     this(inputStream, null, null);
   }
-
   public XMLConfigBuilder(InputStream inputStream, String environment) {
     this(inputStream, environment, null);
   }
-
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
-
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
@@ -91,6 +72,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     this.parser = parser;
   }
 
+  /**
+   * ============================================ 解析配置文件 =========================================
+   */
   public Configuration parse() {
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
@@ -102,21 +86,31 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void parseConfiguration(XNode root) {
     try {
-      // issue #117 read properties first
+      // 解析子节点 properties
       propertiesElement(root.evalNode("properties"));
+      // 解析settings定义一些全局性的配置
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      // 解析子节点typeAliases 别名
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 解析 plugins 插件
       pluginElement(root.evalNode("plugins"));
+      // 解析子节点objectFactory mybatis为结果创建对象时都会用到objectFactory
       objectFactoryElement(root.evalNode("objectFactory"));
+      //解析子节点objectWrapperFactory
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      /**
+       * 解析typeHandlers 当MyBatis设置参数到PreparedStatement
+       * 或者从ResultSet 结果集中取得值时，就会使用TypeHandler  来处理数据库类型与java 类型之间转换
+       */
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 解析mappers， 定义sql操作主要在mappers中
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -157,6 +151,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setLogImpl(logImpl);
   }
 
+  /**
+   * 解析 类别名
+   */
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
