@@ -40,10 +40,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 /**
- * The default implementation for {@link SqlSession}.
- * Note that this class is not Thread-Safe.
- *
- * @author Clinton Begin
+ * DefaultSqlSession
  */
 public class DefaultSqlSession implements SqlSession {
 
@@ -65,6 +62,9 @@ public class DefaultSqlSession implements SqlSession {
     this(configuration, executor, false);
   }
 
+  /**
+   * select 系列
+   */
   @Override
   public <T> T selectOne(String statement) {
     return this.selectOne(statement, null);
@@ -174,6 +174,9 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  /**
+   * insert 系列
+   */
   @Override
   public int insert(String statement) {
     return insert(statement, null);
@@ -184,6 +187,9 @@ public class DefaultSqlSession implements SqlSession {
     return update(statement, parameter);
   }
 
+  /**
+   * update 系列
+   */
   @Override
   public int update(String statement) {
     return update(statement, null);
@@ -202,6 +208,9 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  /**
+   * delete 系列
+   */
   @Override
   public int delete(String statement) {
     return update(statement, null);
@@ -212,6 +221,9 @@ public class DefaultSqlSession implements SqlSession {
     return update(statement, parameter);
   }
 
+  /**
+   * 提交
+   */
   @Override
   public void commit() {
     commit(false);
@@ -229,6 +241,9 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  /**
+   * 回滚
+   */
   @Override
   public void rollback() {
     rollback(false);
@@ -257,6 +272,9 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  /**
+   * 关闭
+   */
   @Override
   public void close() {
     try {

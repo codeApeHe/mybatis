@@ -32,12 +32,12 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 
 /**
- * @author Clinton Begin
+ * 默认的 SqlSession 工厂
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   private final Configuration configuration;
-
+  // 以configuration为参数进行构造
   public DefaultSqlSessionFactory(Configuration configuration) {
     this.configuration = configuration;
   }
@@ -47,16 +47,25 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
   }
 
+  /**
+   * 手动设置 是否”自动提交“
+   */
   @Override
   public SqlSession openSession(boolean autoCommit) {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, autoCommit);
   }
 
+  /**
+   * executor类型：SIMPLE, REUSE, BATCH
+   */
   @Override
   public SqlSession openSession(ExecutorType execType) {
     return openSessionFromDataSource(execType, null, false);
   }
 
+  /**
+   * 指定事务隔离级别
+   */
   @Override
   public SqlSession openSession(TransactionIsolationLevel level) {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), level, false);
@@ -72,6 +81,9 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return openSessionFromDataSource(execType, null, autoCommit);
   }
 
+  /**
+   * 传入连接 Connection
+   */
   @Override
   public SqlSession openSession(Connection connection) {
     return openSessionFromConnection(configuration.getDefaultExecutorType(), connection);
@@ -93,10 +105,13 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       final Environment environment = configuration.getEnvironment();
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+      // 获取对应的 Executor
       final Executor executor = configuration.newExecutor(tx, execType);
+      // 获取默认的SqlSession
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
-      closeTransaction(tx); // may have fetched a connection so lets call close()
+      // 异常，则关闭事务
+      closeTransaction(tx);
       throw ExceptionFactory.wrapException("Error opening session.  Cause: " + e, e);
     } finally {
       ErrorContext.instance().reset();
@@ -141,5 +156,4 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       }
     }
   }
-
 }
