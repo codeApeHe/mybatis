@@ -1,18 +1,3 @@
-/**
- *    Copyright 2009-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.apache.ibatis.mapping;
 
 import java.util.ArrayList;
@@ -29,29 +14,45 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * @author Clinton Begin
+ * 一个MappedStatement对象对应一个mapper.xml中一个sql节点
+ * 而mapper.xml文件是初始化Configuration对象的时候进行解析加载的，
+ * 则说明MappedStatement对象就是在初始化Configuration对象的时候创建大的，并且final类型不可更改
  */
 public final class MappedStatement {
-
+  // mapper配置文件名，如：UserMapper.xml
   private String resource;
+  // 全局配置
   private Configuration configuration;
+  // 节点的id属性+命名空间
   private String id;
   private Integer fetchSize;
+  // 超时时间
   private Integer timeout;
+  /**
+   * 操作sql的对象的类型：STATEMENT, PREPARED, CALLABLE
+   * STATEMENT：直接操作sql，不进行编译
+   * PREPARED：预处理参数，进行编译，获取数据
+   * CALLABLE：执行存储过程
+   */
   private StatementType statementType;
+  // 结果类型
   private ResultSetType resultSetType;
   private SqlSource sqlSource;
   private Cache cache;
   private ParameterMap parameterMap;
   private List<ResultMap> resultMaps;
   private boolean flushCacheRequired;
+  // 是否使用缓存，默认是true
   private boolean useCache;
+  // 结果是否排序
   private boolean resultOrdered;
+  // sql语句的类型：UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH
   private SqlCommandType sqlCommandType;
   private KeyGenerator keyGenerator;
   private String[] keyProperties;
   private String[] keyColumns;
   private boolean hasNestedResultMaps;
+  // 数据库id
   private String databaseId;
   private Log statementLog;
   private LanguageDriver lang;
